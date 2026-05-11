@@ -8,7 +8,8 @@
     :root {
       --border: #ccc;
       --muted: #666;
-      --gift: #0a7c2f;
+      --gift-a: #0a7c2f;
+      --gift-b: #e91e63;
       --card: #ffffff;
       --accent: #0b72ff;
       --warn: #b54708;
@@ -35,7 +36,9 @@
     .order-summary { margin-top: 10px; display: grid; grid-template-columns: 1fr auto; gap: 6px; font-size: 14px; }
     .order-summary .label { color: #333; }
     .order-summary .value { font-weight: 800; }
-    .order-gift { margin-top: 8px; font-weight: 700; color: var(--gift); }
+    .order-gift { margin-top: 8px; font-weight: 700; }
+    .gift-a { color: var(--gift-a); }
+    .gift-b { color: var(--gift-b); }
     .divider { height: 1px; background:#e8e8e8; margin: 8px 0; }
     button { padding: 10px 12px; font-size: 1rem; cursor: pointer; border-radius: 10px; border: 1px solid var(--border); background: white; }
     button.primary { background: var(--accent); color:#fff; border-color: var(--accent); }
@@ -47,15 +50,18 @@
     }
     .sticky-row { display:flex; justify-content:space-between; align-items:center; font-size: 14px; }
     .sticky-actions { display:flex; gap:8px; flex-wrap: wrap; }
-    .gift-em { color: var(--gift); font-weight: 800; }
+    .gift-em { font-weight: 800; }
     
-    
+    .section-header { font-weight: bold; text-align: left; padding: 6px 10px; font-size: 14px; }
+    .header-a { background-color: #eaf3ff; color: #0b72ff; }
+    .header-b { background-color: #fff0ea; color: #b54708; }
+    .tier-hint { color: var(--muted); font-size: 13px; font-weight: normal; }
+
     @media (max-width: 600px) {
       .order-card { width: 100%; padding: 12px; }
-      body { padding-bottom: 190px; }
+      body { padding-bottom: 220px; }
     }
 
-    /* === 參照 25USTC.html 的圖片預覽元件 === */
     #product-preview {
       position: fixed; pointer-events: none; z-index: 9999; display: none;
       background: #fff; border: 1px solid #ddd; border-radius: 12px;
@@ -79,25 +85,12 @@
         padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
       }
       #mobile-sheet img {
-        display: block;
-        width: auto;
-        height: auto;
-        max-width: min(92vw, 520px);
-        max-height: 60vh;
-        object-fit: contain;
-        margin: 6px auto 8px;
+        display: block; width: auto; height: auto; max-width: min(92vw, 520px); max-height: 60vh;
+        object-fit: contain; margin: 6px auto 8px;
       }
     }
 
-    /* 在產品名稱旁放一個縮圖圖示（有圖才顯示） */
-    .thumb-dot {
-      display: none;
-      margin-left: 6px;
-      font-size: 12px;
-      color: #888;
-      cursor: zoom-in;
-      user-select: none;
-    }
+    .thumb-dot { display: none; margin-left: 6px; font-size: 12px; color: #888; cursor: zoom-in; user-select: none; }
     tr.has-image .thumb-dot { display: inline; }
     td.name-cell { text-align: left; }
   </style>
@@ -105,12 +98,13 @@
 </head>
 <body>
   <h2>安摩樂活動計算機</h2>
-<!-- 基本輸入 -->
+  
   <div class="row">
     <label>客戶名稱：<input type="text" id="customer" placeholder="例如：大里 昱昭"></label>
     <label>備註：<input type="text" id="note" placeholder="例如：急！／星期四到貨"></label>
-    <label>之前已出金額：<input type="number" id="previous-total" value="0" min="0" inputmode="numeric" pattern="[0-9]*"></label>
-    <label>點擊產品品名會顯示圖片，點擊圖片會收回</label>
+    <label>安摩樂已出金額：<input type="number" id="prev-a" value="0" min="0" inputmode="numeric"></label>
+    <label>創/疤已出金額：<input type="number" id="prev-b" value="0" min="0" inputmode="numeric"></label>
+    <div style="width:100%; font-size:13px; color:#666;">💡 點擊產品品名會顯示圖片，點擊圖片會收回</div>
   </div>
 
   <table>
@@ -118,34 +112,36 @@
       <tr><th>品名</th><th>現金價</th><th>數量</th><th>小計</th></tr>
     </thead>
     <tbody id="product-table">
+      <tr><td colspan="4" class="section-header header-a">【安摩樂活動】每滿 $4000 送 1 支，滿 $12000 送 4 支</td></tr>
       <tr>
-        <td class="name-cell">®小林清新安摩樂彎彎瓶(紅) 46ml</td>
-        <td>136</td>
-        <td><input type="number" min="0" value="0" inputmode="numeric" pattern="[0-9]*" data-price="136"></td>
-        <td class="subtotal">0</td>
+        <td class="name-cell">®小林清新安摩樂彎彎瓶(紅) 46ml</td><td>136</td>
+        <td><input type="number" min="0" value="0" inputmode="numeric" data-price="136" data-act="A"></td><td class="subtotal">0</td>
       </tr>
       <tr>
-        <td class="name-cell">®小林清新安摩樂彎彎瓶(紅) 80ml</td>
-        <td>216</td>
-        <td><input type="number" min="0" value="0" inputmode="numeric" pattern="[0-9]*" data-price="216"></td>
-        <td class="subtotal">0</td>
+        <td class="name-cell">®小林清新安摩樂彎彎瓶(紅) 80ml</td><td>216</td>
+        <td><input type="number" min="0" value="0" inputmode="numeric" data-price="216" data-act="A"></td><td class="subtotal">0</td>
       </tr>
       <tr>
-        <td class="name-cell">®小林清新安摩樂外用液劑(藍) 82ml</td>
-        <td>216</td>
-        <td><input type="number" min="0" value="0" inputmode="numeric" pattern="[0-9]*" data-price="216"></td>
-        <td class="subtotal">0</td>
+        <td class="name-cell">®小林清新安摩樂外用液劑(藍) 82ml</td><td>216</td>
+        <td><input type="number" min="0" value="0" inputmode="numeric" data-price="216" data-act="A"></td><td class="subtotal">0</td>
       </tr>
       <tr>
-        <td class="name-cell">®小林安摩樂祛痛液劑EX 46ml</td>
-        <td>200</td>
-        <td><input type="number" min="0" value="0" inputmode="numeric" pattern="[0-9]*" data-price="200"></td>
-        <td class="subtotal">0</td>
+        <td class="name-cell">®小林安摩樂祛痛液劑EX 46ml</td><td>200</td>
+        <td><input type="number" min="0" value="0" inputmode="numeric" data-price="200" data-act="A"></td><td class="subtotal">0</td>
+      </tr>
+
+      <tr><td colspan="4" class="section-header header-b">【創護寧/疤脱諾活動】滿 $2000 送 1 支，滿 $4000 送 3 支</td></tr>
+      <tr>
+        <td class="name-cell">小林創護寧液體絆創膏</td><td>191</td>
+        <td><input type="number" min="0" value="0" inputmode="numeric" data-price="191" data-act="B"></td><td class="subtotal">0</td>
+      </tr>
+      <tr>
+        <td class="name-cell">小林疤脱諾EX疤痕護理乳膏</td><td>295</td>
+        <td><input type="number" min="0" value="0" inputmode="numeric" data-price="295" data-act="B"></td><td class="subtotal">0</td>
       </tr>
     </tbody>
   </table>
 
-  <!-- 訂單卡片（輸出圖檔用） -->
   <div id="order-card" class="order-card" style="margin-top:14px;">
     <div class="order-head">
       <div class="order-title">訂單確認單</div>
@@ -161,188 +157,135 @@
       <tbody id="order-items"><tr><td colspan="4" style="text-align:center;color:#666;">尚未選購任何品項</td></tr></tbody>
     </table>
     <div class="order-summary">
-      <div class="label">本次總計：</div><div class="value" id="sum-grand">0 元</div>
-      <div class="label">之前已出：</div><div class="value" id="sum-prev">0 元</div>
-      <div class="label">加總金額：</div><div class="value" id="sum-final">0 元</div>
+      <div class="label">本次訂單總計：</div><div class="value" id="sum-grand" style="font-size:16px;">0 元</div>
+      <div class="divider" style="grid-column: 1 / 3;"></div>
+      <div class="label">【安摩樂】累計 (含已出)：</div><div class="value" id="sum-final-a">0 元</div>
+      <div class="label">【創/疤】累計 (含已出)：</div><div class="value" id="sum-final-b">0 元</div>
     </div>
-    <div class="order-gift" id="sum-gift">滿額贈品：無</div>
+    <div class="order-gift gift-a" id="sum-gift-a">安摩樂贈品：無</div>
+    <div class="order-gift gift-b" id="sum-gift-b">創護寧贈品：無</div>
   </div>
 
-  <!-- 手機底部固定資訊與操作 -->
   <div class="sticky-bar">
-    <div class="sticky-row">總計金額（含已出）：<span id="grand-total">0</span> 元</div>
-    <div class="sticky-row"><span class="gift-em" id="gift-info">滿額贈品：無</span></div>
-    <div class="sticky-row" id="next-tier">距離下一支還差：— 元</div>
+    <div class="sticky-row">本次出貨總計：<span id="grand-total" style="font-weight:bold; color:var(--accent);">0</span> 元</div>
+    <div class="sticky-row">
+      <span class="gift-em gift-a" id="gift-info-a">安摩樂滿額贈：無</span>
+      <span class="tier-hint" id="next-tier-a"></span>
+    </div>
+    <div class="sticky-row">
+      <span class="gift-em gift-b" id="gift-info-b">創/疤滿額贈：無</span>
+      <span class="tier-hint" id="next-tier-b"></span>
+    </div>
     <div class="sticky-actions">
       <button id="clear-btn">重新輸入</button>
       <button id="share-all-btn" class="primary">生成訂單並分享</button>
       <a id="share-line-text" target="_blank" rel="noopener"><button>用 LINE 傳文字</button></a>
-</div>
+    </div>
   </div>
 
-  <!-- 產品圖片預覽（參照 25USTC.html） -->
-  <div id="product-preview" aria-hidden="true">
-    <img id="product-preview-img" alt="商品預覽" loading="lazy" />
-  </div>
+  <div id="product-preview" aria-hidden="true"><img id="product-preview-img" alt="商品預覽" loading="lazy" /></div>
   <div id="mobile-sheet" aria-hidden="true">
-    <div class="handle"></div>
-    <img id="mobile-sheet-img" alt="商品預覽" loading="lazy" />
+    <div class="handle"></div><img id="mobile-sheet-img" alt="商品預覽" loading="lazy" />
   </div>
 
 <script>
-  const inputs = document.querySelectorAll('input[type="number"][data-price]');
-  const prevInput = document.getElementById('previous-total');
+  const prevAInput = document.getElementById('prev-a');
+  const prevBInput = document.getElementById('prev-b');
   const custInput = document.getElementById('customer');
   const noteInput = document.getElementById('note');
 
   const grandEl = document.getElementById('grand-total');
-  const giftInfoEl = document.getElementById('gift-info');
-  const nextTierEl = document.getElementById('next-tier');
+  const giftInfoA = document.getElementById('gift-info-a');
+  const giftInfoB = document.getElementById('gift-info-b');
+  const nextTierAEl = document.getElementById('next-tier-a');
+  const nextTierBEl = document.getElementById('next-tier-b');
   const clearBtn = document.getElementById('clear-btn');
   const shareAllBtn = document.getElementById('share-all-btn');
   const shareLineText = document.getElementById('share-line-text');
+  
   const orderItems = document.getElementById('order-items');
   const sumGrand = document.getElementById('sum-grand');
-  const sumPrev = document.getElementById('sum-prev');
-  const sumFinal = document.getElementById('sum-final');
-  const sumGift = document.getElementById('sum-gift');
+  const sumFinalA = document.getElementById('sum-final-a');
+  const sumFinalB = document.getElementById('sum-final-b');
+  const sumGiftA = document.getElementById('sum-gift-a');
+  const sumGiftB = document.getElementById('sum-gift-b');
   const metaDate = document.getElementById('meta-date');
   const metaCustomer = document.getElementById('meta-customer');
   const metaNote = document.getElementById('meta-note');
 
-  // === 圖片預覽相關 ===
+  // 圖片預覽功能保留原樣
   const preview = document.getElementById('product-preview');
   const previewImg = document.getElementById('product-preview-img');
   const sheet = document.getElementById('mobile-sheet');
   const sheetImg = document.getElementById('mobile-sheet-img');
   const PADDING = 16;
   const isDesktop = () => window.matchMedia('(min-width: 769px)').matches;
-
-  const JSON_URLS = ['productImages.json', 'productImages_local.json']; // 支援兩種檔名
+  const JSON_URLS = ['productImages.json', 'productImages_local.json'];
   let imageMap = {};
 
-  function normalizeName(s){
-    return (s || '').replace(/\\u00A0/g, ' ').replace(/\\s+/g, ' ').trim();
-  }
-
+  function normalizeName(s){ return (s || '').replace(/\\u00A0/g, ' ').replace(/\\s+/g, ' ').trim(); }
   async function loadMap(){
     for(const url of JSON_URLS){
-      try{
-        const r = await fetch(url, {cache:'no-cache'});
-        if(r.ok){
-          imageMap = await r.json();
-          console.log('[預覽對照表載入成功]', url);
-          return;
-        }
-      }catch(e){ /* try next */ }
+      try{ const r = await fetch(url, {cache:'no-cache'}); if(r.ok){ imageMap = await r.json(); return; } }catch(e){ }
     }
-    console.warn('productImages 對照表載入失敗，名稱對照將無法顯示圖片');
   }
-
   function getImgSrcFromName(name){
-    const productName = normalizeName(name);
-    let src = imageMap[productName];
-    if(!src){
-      const loose = productName.replace(/[®™©]/g, '').trim();
-      src = imageMap[loose];
-    }
+    const productName = normalizeName(name); let src = imageMap[productName];
+    if(!src){ src = imageMap[productName.replace(/[®™©]/g, '').trim()]; }
     return src || null;
   }
-
   function movePreview(e){
-    const vw = innerWidth, vh = innerHeight;
-    const w = preview.offsetWidth || 300, h = preview.offsetHeight || 200;
+    const vw = innerWidth, vh = innerHeight; const w = preview.offsetWidth || 300, h = preview.offsetHeight || 200;
     let x = e.clientX + 18, y = e.clientY + 18;
     if (x + w + PADDING > vw) x = e.clientX - w - 18;
     if (y + h + PADDING > vh) y = e.clientY - h - 18;
-    preview.style.left = Math.max(PADDING, x) + 'px';
-    preview.style.top  = Math.max(PADDING, y) + 'px';
+    preview.style.left = Math.max(PADDING, x) + 'px'; preview.style.top  = Math.max(PADDING, y) + 'px';
   }
-  function showPreview(src){
-    previewImg.src = src;
-    preview.style.display = 'block';
-  }
-  function hidePreview(){
-    preview.style.display = 'none';
-    previewImg.removeAttribute('src');
-  }
-  function openSheet(src){
-    sheetImg.src = src;
-    sheet.classList.add('open');
-    sheet.setAttribute('aria-hidden','false');
-  }
-  function closeSheet(){
-    sheet.classList.remove('open');
-    sheet.setAttribute('aria-hidden','true');
-    sheetImg.removeAttribute('src');
-  }
+  function showPreview(src){ previewImg.src = src; preview.style.display = 'block'; }
+  function hidePreview(){ preview.style.display = 'none'; previewImg.removeAttribute('src'); }
+  function openSheet(src){ sheetImg.src = src; sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); }
+  function closeSheet(){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); sheetImg.removeAttribute('src'); }
   sheet.addEventListener('click', ()=>{ closeSheet(); });
 
-  // 初始化資料列的「有圖」標示
   function markRowsHasImage(){
     document.querySelectorAll('#product-table tr').forEach(tr => {
-      const nameCell = tr.querySelector('.name-cell');
-      if(!nameCell) return;
-      const name = nameCell.childNodes[0]?.textContent || nameCell.textContent;
-      const src = getImgSrcFromName(name);
-      if(src){
-        tr.classList.add('has-image');
-        nameCell.querySelector('.thumb-dot')?.setAttribute('data-src', src);
-      } else {
-        tr.classList.remove('has-image');
-      }
+      const nameCell = tr.querySelector('.name-cell'); if(!nameCell) return;
+      const name = nameCell.childNodes[0]?.textContent || nameCell.textContent; const src = getImgSrcFromName(name);
+      if(src){ tr.classList.add('has-image'); nameCell.querySelector('.thumb-dot')?.setAttribute('data-src', src); }
     });
   }
 
   function bindPreviewEvents(){
-    // 桌機：滑過整列顯示預覽
     document.addEventListener('mouseover', (e) => {
-      if (!isDesktop()) return;
-      const nameCell = e.target.closest('#product-table td.name-cell');
-      if (!nameCell) return;
-      const name = nameCell.childNodes[0]?.textContent || nameCell.textContent;
-      const src = getImgSrcFromName(name);
-      if (!src) return;
-      showPreview(src);
-      movePreview(e);
+      if (!isDesktop()) return; const nameCell = e.target.closest('#product-table td.name-cell'); if (!nameCell) return;
+      const src = getImgSrcFromName(nameCell.childNodes[0]?.textContent || nameCell.textContent);
+      if (src){ showPreview(src); movePreview(e); }
     });
-    document.addEventListener('mousemove', (e) => {
-      if (!isDesktop()) return;
-      if (preview.style.display === 'block') movePreview(e);
-    });
-    document.addEventListener('mouseout', (e) => {
-      if (!isDesktop()) return;
-      if (e.target.closest('#product-table td.name-cell')) hidePreview();
-    });
-
-    // 手機：點擊縮圖圖示或名稱打開 bottom sheet
+    document.addEventListener('mousemove', (e) => { if (!isDesktop()) return; if (preview.style.display === 'block') movePreview(e); });
+    document.addEventListener('mouseout', (e) => { if (!isDesktop()) return; if (e.target.closest('#product-table td.name-cell')) hidePreview(); });
     document.addEventListener('click', (e) => {
-      if (isDesktop()) return;
-      const dot = e.target.closest('.thumb-dot');
-      const nameCell = e.target.closest('.name-cell');
+      if (isDesktop()) return; const dot = e.target.closest('.thumb-dot'); const nameCell = e.target.closest('.name-cell');
       let src = null;
-      if (dot) {
-        src = dot.getAttribute('data-src');
-      } else if (nameCell) {
-        const name = nameCell.childNodes[0]?.textContent || nameCell.textContent;
-        src = getImgSrcFromName(name);
-      }
+      if (dot) src = dot.getAttribute('data-src');
+      else if (nameCell) src = getImgSrcFromName(nameCell.childNodes[0]?.textContent || nameCell.textContent);
       if (src) openSheet(src);
     });
   }
 
-  // === 訂單/金額計算 ===
-  // 贈品規則：每 12,000 計 4 支；餘數再以每 4,000 計 1 支
-  function calcGifts(total){
-    const bigBlocks=Math.floor(total/12000);
-    const remainder=total%12000;
-    const smallBlocks=Math.floor(remainder/4000);
-    return bigBlocks*4+smallBlocks;
+  // === 贈品計算邏輯 ===
+  function calcGiftsA(total){
+    // 安摩樂：每 12,000 給 4 支，餘數每 4,000 給 1 支
+    return Math.floor(total/12000) * 4 + Math.floor((total%12000)/4000);
+  }
+  function calcGiftsB(total){
+    // 創護寧/疤脱諾：每 4,000 給 3 支，餘數每 2,000 給 1 支
+    return Math.floor(total/4000) * 3 + Math.floor((total%4000)/2000);
   }
   function currentDateStr(){
     const d=new Date(); const p=n=>n.toString().padStart(2,'0');
     return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
   }
+
   function buildTextMessage(data) {
     const lines = [];
     lines.push(`【訂單確認單】`);
@@ -353,30 +296,50 @@
     if (data.items.length === 0) lines.push('（尚未選購任何品項）');
     data.items.forEach(it => lines.push(`${it.name} × ${it.qty}（$${it.price}）＝ $${it.sub}`));
     lines.push('———');
-    lines.push(`本次總計：$${data.grand}`);
-    lines.push(`之前已出：$${data.prev}`);
-    lines.push(`加總金額：$${data.final}`);
-    lines.push(data.gifts > 0 ? `滿額贈：安摩樂 #1 × ${data.gifts} 支` : '滿額贈：無');
+    lines.push(`本次訂單總計：$${data.grand}`);
+    lines.push('———');
+    lines.push(`【安摩樂】累計 $${data.finalA} (含已出$${data.prevA})`);
+    lines.push(data.giftsA > 0 ? `👉 滿額贈：80/82ml × ${data.giftsA} 支` : '👉 滿額贈：無');
+    lines.push(`【創/疤】累計 $${data.finalB} (含已出$${data.prevB})`);
+    lines.push(data.giftsB > 0 ? `👉 滿額贈：創護寧 × ${data.giftsB} 支` : '👉 滿額贈：無');
     return lines.join('\n');
   }
+
   function collectOrderData() {
-    const rows = Array.from(document.querySelectorAll('#product-table tr'));
+    const inputs = Array.from(document.querySelectorAll('input[data-price]'));
     const items = [];
-    rows.forEach(tr => {
-      const name = tr.querySelector('.name-cell').childNodes[0]?.textContent.trim() || tr.querySelector('.name-cell').textContent.trim();
-      const price = parseFloat(tr.querySelector('td:nth-child(2)').textContent.trim());
-      const qty = parseInt(tr.querySelector('input').value || '0', 10);
-      if (qty > 0) items.push({ name, price, qty, sub: qty * price });
+    let grand = 0, subA = 0, subB = 0;
+    
+    inputs.forEach(inp => {
+      const qty = parseInt(inp.value || '0', 10);
+      if (qty > 0) {
+        const price = parseFloat(inp.dataset.price);
+        const act = inp.dataset.act;
+        const sub = qty * price;
+        const nameCell = inp.closest('tr').querySelector('.name-cell');
+        const name = nameCell.childNodes[0]?.textContent.trim() || nameCell.textContent.trim();
+        items.push({ name, price, qty, sub });
+        grand += sub;
+        if(act === 'A') subA += sub;
+        if(act === 'B') subB += sub;
+      }
     });
-    const grand = items.reduce((s, it) => s + it.sub, 0);
-    const prev = parseInt(prevInput.value || '0', 10) || 0;
-    const final = grand + prev;
-    const gifts = calcGifts(final);
-    return { items, grand, prev, final, gifts };
+
+    const prevA = parseInt(prevAInput.value || '0', 10);
+    const prevB = parseInt(prevBInput.value || '0', 10);
+    const finalA = subA + prevA;
+    const finalB = subB + prevB;
+
+    return { 
+      items, grand, prevA, prevB, finalA, finalB, 
+      giftsA: calcGiftsA(finalA), giftsB: calcGiftsB(finalB) 
+    };
   }
+
   function updateTotals(){
     const data = collectOrderData();
-    // 更新清單
+    
+    // 更新明細清單
     orderItems.innerHTML = '';
     if (data.items.length === 0) {
       orderItems.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#666;">尚未選購任何品項</td></tr>';
@@ -387,36 +350,51 @@
         orderItems.appendChild(tr);
       });
     }
+
     // 更新表格小計
-    document.querySelectorAll('#product-table tr').forEach((tr,i)=>{
-      const input = tr.querySelector('input');
-      const price = parseFloat(input.dataset.price);
-      const qty = parseInt(input.value || '0',10) || 0;
-      tr.querySelector('.subtotal').textContent = price * qty;
+    document.querySelectorAll('input[data-price]').forEach((inp)=>{
+      const price = parseFloat(inp.dataset.price);
+      const qty = parseInt(inp.value || '0',10) || 0;
+      inp.closest('tr').querySelector('.subtotal').textContent = price * qty;
     });
-    // 更新金額/贈品/底部顯示
+
+    // 計算距離下一門檻差額
+    const nextTierA = (Math.floor(data.finalA/4000) + 1) * 4000;
+    const diffA = nextTierA - data.finalA;
+    const nextTierB = (Math.floor(data.finalB/2000) + 1) * 2000;
+    const diffB = nextTierB - data.finalB;
+
+    // 更新 Order Card 金額
     sumGrand.textContent = data.grand + ' 元';
-    sumPrev.textContent = data.prev + ' 元';
-    sumFinal.textContent = data.final + ' 元';
-    grandEl.textContent = data.final;
-    const giftText = data.gifts>0 ? `滿額贈品：安摩樂 #1 × ${data.gifts} 支` : '滿額贈品：無';
-    giftInfoEl.textContent = giftText;
-    sumGift.textContent = giftText;
-    nextTierEl.textContent = `距離下一支還差：${Math.max(0,(Math.floor(data.final/4000)+1)*4000 - data.final)} 元`;
+    sumFinalA.textContent = data.finalA + ' 元';
+    sumFinalB.textContent = data.finalB + ' 元';
+    
+    const txtGiftA = data.giftsA > 0 ? `安摩樂贈品：80/82ml × ${data.giftsA} 支` : '安摩樂贈品：無';
+    const txtGiftB = data.giftsB > 0 ? `創護寧贈品：創護寧 × ${data.giftsB} 支` : '創護寧贈品：無';
+    sumGiftA.textContent = txtGiftA;
+    sumGiftB.textContent = txtGiftB;
+
+    // 更新 Sticky Bar
+    grandEl.textContent = data.grand;
+    giftInfoA.textContent = txtGiftA;
+    giftInfoB.textContent = txtGiftB;
+    nextTierAEl.textContent = `(差 ${diffA} 元達下一門檻)`;
+    nextTierBEl.textContent = `(差 ${diffB} 元達下一門檻)`;
+
     metaDate.textContent = currentDateStr();
     metaCustomer.textContent = custInput.value || '—';
     metaNote.textContent = noteInput.value || '—';
-    // 更新 LINE 文字分享連結
     shareLineText.href = 'https://line.me/R/msg/text/?' + encodeURIComponent(buildTextMessage(data));
   }
-  // 自動清零：focus 清 0、blur 空白補 0
+
   function attachAutoClearZero(input){
     input.addEventListener('focus', ()=>{ if(input.value === '0') input.value = ''; });
     input.addEventListener('blur', ()=>{ if(input.value === '') input.value = '0'; });
     input.addEventListener('input', updateTotals);
   }
   document.querySelectorAll('input[type="number"][data-price]').forEach(attachAutoClearZero);
-  attachAutoClearZero(prevInput);
+  attachAutoClearZero(prevAInput);
+  attachAutoClearZero(prevBInput);
   custInput.addEventListener('input', updateTotals);
   noteInput.addEventListener('input', updateTotals);
 
@@ -432,17 +410,15 @@
     const file = new File([blob], 'order.png', {type:'image/png'});
     const data = collectOrderData();
     const shareData = { title:'訂單確認單', text: buildTextMessage(data), files:[file] };
-    // 1) 先嘗試 Web Share with files（Android Chrome 89+ & HTTPS）
+    
     if ((location.protocol === 'https:' || location.hostname === 'localhost') && navigator.canShare && navigator.canShare({ files:[file] })) {
-      try { await navigator.share(shareData); return; }
-      catch (e) { /* 使用者取消或失敗 */ }
+      try { await navigator.share(shareData); return; } catch (e) { }
     }
-    // 2) 備援 A：下載到「下載」資料夾
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'order.png';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    // 3) 備援 B（Android 友善）：開新分頁顯示圖片，長按「儲存圖片」可進相簿
+    
     if (/Android/i.test(navigator.userAgent || '')) {
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
@@ -453,12 +429,12 @@
   }
 
   clearBtn.addEventListener('click', ()=>{
-    document.querySelectorAll('input[type="number"][data-price]').forEach(i=>i.value='0');
-    prevInput.value='0'; custInput.value=''; noteInput.value='';
+    document.querySelectorAll('input[type="number"]').forEach(i=>i.value='0');
+    custInput.value=''; noteInput.value='';
     updateTotals();
   });
   shareAllBtn.addEventListener('click', shareAll);
-  // 啟動：載入圖片對照表 → 標示有圖列 → 綁定事件
+  
   (async function init(){
     await loadMap();
     markRowsHasImage();
@@ -466,6 +442,5 @@
     updateTotals();
   })();
 </script>
-
 </body>
 </html>
