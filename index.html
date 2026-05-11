@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>安摩樂活動計算機</title>
+  <title>小林製藥活動計算機</title>
   <style>
     :root {
       --border: #ccc;
@@ -97,13 +97,13 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
-  <h2>安摩樂活動計算機</h2>
+  <h2>小林製藥活動計算機</h2>
   
   <div class="row">
     <label>客戶名稱：<input type="text" id="customer" placeholder="例如：大里 昱昭"></label>
     <label>備註：<input type="text" id="note" placeholder="例如：急！／星期四到貨"></label>
     <label>安摩樂已出金額：<input type="number" id="prev-a" value="0" min="0" inputmode="numeric"></label>
-    <label>創/疤已出金額：<input type="number" id="prev-b" value="0" min="0" inputmode="numeric"></label>
+    <label>創護寧/疤脫諾已出金額：<input type="number" id="prev-b" value="0" min="0" inputmode="numeric"></label>
     <div style="width:100%; font-size:13px; color:#666;">💡 點擊產品品名會顯示圖片，點擊圖片會收回</div>
   </div>
 
@@ -160,7 +160,7 @@
       <div class="label">本次訂單總計：</div><div class="value" id="sum-grand" style="font-size:16px;">0 元</div>
       <div class="divider" style="grid-column: 1 / 3;"></div>
       <div class="label">【安摩樂】累計 (含已出)：</div><div class="value" id="sum-final-a">0 元</div>
-      <div class="label">【創/疤】累計 (含已出)：</div><div class="value" id="sum-final-b">0 元</div>
+      <div class="label">【創護寧/疤脫諾】累計 (含已出)：</div><div class="value" id="sum-final-b">0 元</div>
     </div>
     <div class="order-gift gift-a" id="sum-gift-a">安摩樂贈品：無</div>
     <div class="order-gift gift-b" id="sum-gift-b">創護寧贈品：無</div>
@@ -173,7 +173,7 @@
       <span class="tier-hint" id="next-tier-a"></span>
     </div>
     <div class="sticky-row">
-      <span class="gift-em gift-b" id="gift-info-b">創/疤滿額贈：無</span>
+      <span class="gift-em gift-b" id="gift-info-b">創護寧/疤脫諾滿額贈：無</span>
       <span class="tier-hint" id="next-tier-b"></span>
     </div>
     <div class="sticky-actions">
